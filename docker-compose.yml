@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql
+    container_name: database_container
+    restart: always
+    volumes:
+      - db-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - dev
+  
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: phpmyadmin_container
+    restart: always
+    depends_on:
+      - mysql
+    ports:
+      - 8080:80
+    environment:
+      PMA_HOST: mysql
+    networks:
+      - dev
+
+  web:
+    build: ./.docker/php/
+    container_name: web_container
+    restart: always
+    ports:
+      - 8000:80
+    networks:
+      - dev
+    volumes:
+      - ./vhosts:/etc/apache2/sites-enabled
+      - ./:/var/www
+
+networks:
+  dev:
+
+volumes:
+  db-data:
